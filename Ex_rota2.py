@@ -22,7 +22,7 @@ def main(page: ft.Page):
                     input_descricao,
                     input_categoria,
                     input_autor,
-                    ElevatedButton(text="Navegar", on_click=lambda _: page.go("/segunda"))
+                    ElevatedButton(text="Enviar", on_click=lambda _: page.go("/segunda"))
                 ]
             )
         )

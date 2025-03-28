@@ -19,7 +19,7 @@ def main(page: ft.Page):
                 [
                     AppBar(title=Text("Primeira tela"), bgcolor=Colors.PRIMARY_CONTAINER),
                     input_nome,
-                    ElevatedButton(text="Navegar", on_click=lambda _: page.go("/segunda"))
+                    ElevatedButton(text="Enviar", on_click=lambda _: page.go("/segunda"))
                 ]
             )
         )
