@@ -30,7 +30,7 @@ def main(page: ft.Page):
                     "/segunda",
                     [
                         AppBar(title=Text("Segunda tela"), bgcolor=Colors.PRIMARY_CONTAINER),
-                        Text(value=f"Bem vindo {input_nome.value}")
+                        Text(value=f"Bem vinda {input_nome.value}")
                     ]
                 )
             )
