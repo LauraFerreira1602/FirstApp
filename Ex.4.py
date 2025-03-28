@@ -19,21 +19,25 @@ def main(page: ft.Page):
         mes = datetime.today().month
         dia = datetime.today().day
 
-        if mes < data_nascimento.month:
-            idade = idade - 1
-
-        elif mes == data_nascimento.month:
-            if dia < data_nascimento.day:
+        try:
+            if mes < data_nascimento.month:
                 idade = idade - 1
 
-        if idade <= 17:
-            txt_resultado.value =  f'Esta pessoa tem {idade} anos, ela é menor de idade'
+            elif mes == data_nascimento.month:
+                if dia < data_nascimento.day:
+                    idade = idade - 1
 
-        elif idade >= 18 and idade <= 120:
-            txt_resultado.value =  f'Esta pessoa tem {idade} anos, ela é maior de idade'
+            if idade <= 17:
+                txt_resultado.value =  f'Esta pessoa tem {idade} anos, ela é menor de idade'
 
-        else:
-            txt_resultado.value = f'Esta pessoa faleceu'
+            elif idade >= 18 and idade <= 120:
+                txt_resultado.value =  f'Esta pessoa tem {idade} anos, ela é maior de idade'
+
+            else:
+                txt_resultado.value = f'Esta pessoa faleceu'
+
+        except ValueError:
+            txt_resultado.value = 'Data Invalida'
 
         page.update()
 
