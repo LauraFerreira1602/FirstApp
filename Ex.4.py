@@ -16,6 +16,15 @@ def main(page: ft.Page):
         data_nascimento = datetime.strptime(str(input_data_nasc.value), "%d-%m-%Y")
         conta = 2025 - data_nascimento.year
         idade = int(conta)
+        mes = datetime.today().month
+        dia = datetime.today().day
+
+        if mes < data_nascimento.month:
+            idade = idade - 1
+
+        elif mes == data_nascimento.month:
+            if dia < data_nascimento.day:
+                idade = idade - 1
 
         if idade <= 17:
             txt_resultado.value =  f'Esta pessoa tem {idade} anos, ela é menor de idade'
