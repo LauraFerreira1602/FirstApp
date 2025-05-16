@@ -1,61 +1,66 @@
 import flet as ft
-from flet import AppBar, Text, View
+from flet import AppBar, View
+from flet.core.text import Text
 from flet.core.colors import Colors
-
-class User():
-    def __init__(self, nome, cargo, salario):
-        self.nome = nome
-        self.cargo = cargo
-        self.salario = salario
+from sqlalchemy import select
+from models import *
 
 def main(page: ft.Page):
-    # Configurações
     page.title = "Exercicio 1"
     page.theme_mode = ft.ThemeMode.LIGHT  # ou ft.ThemeMode.DARK
     page.window.width = 375
     page.window.height = 667
 
-    # Funções
-    lista = []
     def salvar_info(e):
-        if input_nome.value == "" or input_salario.value =="" or input_cargo.value == "":
+        if input_nome.value == "" or input_salario.value =="" or input_profissao.value == "":
             page.overlay.append(msg_erro)
             msg_erro.open = True
             page.update()
+            print("Campos vazios")
         else:
-            obj_user = User(
+            print("Campos preenchidos")
+            obj_usuario = Usuario(
                 nome=input_nome.value,
-                cargo=input_cargo.value,
+                profissao=input_profissao.value,
                 salario=input_salario.value
             )
 
-            lista.append(obj_user)
+            obj_usuario.save()
             input_nome.value = ""
-            input_cargo.value = ""
+            input_profissao.value = ""
             input_salario.value = ""
             page.overlay.append(msg_sucesso)
             msg_sucesso.open = True
-            page.update()
+        page.update()
 
 
-    def verificar_campos(e):
-        salario = input_salario.value
+    def detalhes(nome, profissao, salario):
+        txt_nome.value = nome
+        txt_profissao.value = profissao
+        txt_salario.value = salario
 
-        if not salario.isnumeric():
-            input_salario.error = True
-            input_salario.error_text = "Digite somente numeros"
-            page.update()
-            return
-
+        page.go("/terceira")
 
     def exibir_lista(e):
         lv_exibir.controls.clear()
-        for user in lista:
-            lv_exibir.controls.append(
-                ft.Text(value=f"{user.nome} - {user.cargo} - {user.salario}")
-            )
-        page.update()
+        sql_usuarios = select(Usuario)
+        resultado_usuario = db_session.execute(sql_usuarios).scalars()
 
+        for usuario in resultado_usuario:
+            lv_exibir.controls.append(
+                ft.ListTile(
+                    leading=ft.Icon(ft.Icons.PERSON),
+                    title=ft.Text(f"Nome: {usuario.nome}"),
+                    trailing=ft.PopupMenuButton(
+                        icon=ft.Icons.MORE_VERT,
+                        items=[
+                            ft.PopupMenuItem(text="Vizualizar detalhes", on_click=lambda _, u=usuario: detalhes(u.nome, u.profissao, u.salario)),
+                        ]
+                    )
+                )
+            )
+
+        page.update()
 
     def gerencia_rotas(e):
         page.views.clear()
@@ -63,16 +68,16 @@ def main(page: ft.Page):
             View(
                 "/",
                 [
-                    AppBar(title=Text("Home"), bgcolor=Colors.PRIMARY_CONTAINER),
+                    AppBar(title=Text("Cadastro de Usuario"), bgcolor=Colors.PRIMARY_CONTAINER),
                     input_nome,
-                    input_cargo,
+                    input_profissao,
                     input_salario,
                     ft.Button(
                         text="Salvar",
                         on_click=lambda _: salvar_info(e)
                     ),
                     ft.Button(
-                        text="Exibir lista",
+                        text="Exibir",
                         on_click=lambda _: page.go ("/segunda")
                     )
                 ],
@@ -84,9 +89,22 @@ def main(page: ft.Page):
                 View(
                     "/segunda",
                     [
-                        AppBar(title=Text("Segunda tela"), bgcolor=Colors.SECONDARY_CONTAINER),
+                        AppBar(title=Text("Usuarios Cadastrados"), bgcolor=Colors.SECONDARY_CONTAINER),
                         lv_exibir,
                     ],
+                )
+            )
+
+        if page.route == "/terceira":
+            page.views.append(
+                View(
+                    "/terceira",
+                    [
+                        AppBar(title=Text("Informações do Usuario"), bgcolor=Colors.SECONDARY_CONTAINER),
+                        txt_nome,
+                        txt_profissao,
+                        txt_salario,
+                    ]
                 )
             )
         page.update()
@@ -99,7 +117,7 @@ def main(page: ft.Page):
 
     # Componentes
     msg_sucesso = ft.SnackBar(
-        content=ft.Text('Informaçoes salvas com sucesso!'),
+        content=ft.Text('Dados salvos com sucesso!'),
         bgcolor=Colors.GREEN,
     )
 
@@ -110,21 +128,23 @@ def main(page: ft.Page):
     )
 
     input_nome = ft.TextField(label="Nome")
-    input_cargo = ft.TextField(label="Cargo")
-    input_salario = ft.TextField(label="Salario",
-                                 on_change=verificar_campos)
+    input_profissao = ft.TextField(label="Profissão")
+    input_salario = ft.TextField(label="Salario")
 
     lv_exibir = ft.ListView(
         height=500
     )
 
 
-    # Eventos
+    txt_nome = ft.Text()
+    txt_profissao = ft.Text()
+    txt_salario = ft.Text()
+
+
     page.on_route_change = gerencia_rotas
     page.on_view_pop = voltar
 
     page.go(page.route)
 
-# Comando que executa o aplicativo
-# Deve estar sempre colado na linha
+
 ft.app(main)

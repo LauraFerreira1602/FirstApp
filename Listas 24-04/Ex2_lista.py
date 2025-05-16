@@ -2,23 +2,14 @@ import flet as ft
 from flet import AppBar, View
 from flet.core.text import Text
 from flet.core.colors import Colors
-from flet.core.elevated_button import ElevatedButton
-
-class Livro():
-    def __init__(self, titulo, descricao, categoria, autor):
-        self.titulo = titulo
-        self.descricao = descricao
-        self.categoria = categoria
-        self.autor = autor
-
+from sqlalchemy import select
+from models import *
 
 def main(page: ft.Page):
     page.title = "Exercicio 2"
     page.theme_mode = ft.ThemeMode.LIGHT  # ou ft.ThemeMode.DARK
     page.window.width = 375
     page.window.height = 667
-
-    lista = []
 
     def salvar_info(e):
         if input_titulo.value == "" or input_descricao.value == "" or input_categoria.value == "" or input_autor.value == "":
@@ -35,7 +26,7 @@ def main(page: ft.Page):
                 autor=input_autor.value
             )
 
-            lista.append(obj_livro)
+            obj_livro.save()
             input_titulo.value = ""
             input_descricao.value = ""
             input_categoria.value = ""
@@ -44,37 +35,43 @@ def main(page: ft.Page):
             msg_sucesso.open = True
             page.update()
 
+
+    def detalhes(titulo, descricao, categoria, autor):
+        txt_titulo.value = titulo
+        txt_descricao.value = descricao
+        txt_categoria.value = categoria
+        txt_autor .value = autor
+
+        page.go("/terceira")
+
+
     def exibir_lista(e):
         lv_exibir.controls.clear()
-        for livro in lista:
+        sql_livros = select(Livro)
+        resultado_livro = db_session.execute(sql_livros).scalars()
+
+        for livro in resultado_livro:
             lv_exibir.controls.append(
                 ft.ListTile(
-                    title=ft.Text(f"Titulo - {livro.titulo}"),
+                    leading=ft.Icon(ft.Icons.PERSON),
+                    title=ft.Text(f"Titulo: {livro.titulo}"),
                     trailing=ft.PopupMenuButton(
                         icon=ft.Icons.MORE_VERT,
                         items=[
-                            ft.PopupMenuItem(text="Vizualizar Detalhes", on_click=lambda _: page.go("/terceira"))
-                        ],
+                            ft.PopupMenuItem(text="Ver Sobre", on_click=lambda _, l=livro: detalhes(l.titulo, l.descricao, l.categoria, l.autor)),
+                        ]
                     )
                 )
             )
-        page.update()
 
-    def Vizu_detalhes(e):
-        lv_exibir.controls.clear()
-        for livro in lista:
-            lv_exibir.controls.append(
-                ft.Text(value=f"{livro.titulo} - {livro.descricao} - {livro.categoria} - {livro.autor}"),
-            )
-        page.update()
 
     def gerenciar_rotas(e):
-        page.views.clear()
+        # page.views.clear()
         page.views.append(
             View(
                 "/",
                 [
-                    AppBar(title=Text("Home"), bgcolor=Colors.PRIMARY_CONTAINER),
+                    AppBar(title=Text("Cadastro de Livros"), bgcolor=Colors.PRIMARY_CONTAINER),
                     input_titulo,
                     input_descricao,
                     input_categoria,
@@ -102,15 +99,17 @@ def main(page: ft.Page):
                     ]
                 )
             )
-        page.update()
 
         if page.route == "/terceira":
-            Vizu_detalhes(e)
             page.views.append(
                 View(
-                    "/Sobre o livro",
+                    "/terceira",
                     [
-                    lv_exibir
+                    AppBar(title=Text("Informações do Livro"), bgcolor=Colors.SECONDARY_CONTAINER),
+                    txt_titulo,
+                    txt_descricao,
+                    txt_categoria,
+                    txt_autor
                     ]
                 )
             )
@@ -139,6 +138,13 @@ def main(page: ft.Page):
     lv_exibir = ft.ListView(
         height=500
     )
+
+
+    txt_titulo = ft.Text()
+    txt_descricao = ft.Text()
+    txt_categoria = ft.Text()
+    txt_autor = ft.Text()
+
 
     page.on_route_change = gerenciar_rotas
     page.go(page.route)
