@@ -53,7 +53,6 @@ def main(page: ft.Page):
         for livro in resultado_livro:
             lv_exibir.controls.append(
                 ft.ListTile(
-                    leading=ft.Icon(ft.Icons.PERSON),
                     title=ft.Text(f"Titulo: {livro.titulo}"),
                     trailing=ft.PopupMenuButton(
                         icon=ft.Icons.MORE_VERT,
