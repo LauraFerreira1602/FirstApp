@@ -33,10 +33,10 @@ def exemplo_get(id):
 
 
 def exemplo_post():
-    url = " https://jsonplaceholder.typicode.com/posts"
+    url = "https://jsonplaceholder.typicode.com/posts"
 
     nova_postagem = {
-        "title": "Postagem",
+        "title": "Novo titulo",
         "body": "Novo conteudo",
         "userId": 1
     }
@@ -45,26 +45,38 @@ def exemplo_post():
 
     if response.status_code == 201:
         dados_postagem = response.json()
-        print(f"Titulo: {dados_postagem['title']}\n")
+        print(f"Titulo: {dados_postagem['title']}")
         print(f"Conteudo: {dados_postagem['body']}")
 
     else:
         print(f"Erro: {response.status_code}")
 
 
-def exemplo_put():
-    url = f"https://jsonplaceholder.typicode.com/posts/1"
-    response = requests.put(url)
+def exemplo_put(id):
+    url = f"https://jsonplaceholder.typicode.com/posts/{id}"
+
+    nova_postagem = {
+        "id": id,
+        "title": "Novo titulo",
+        "body": "Novo conteudo",
+        "userId": 1
+    }
+
+    antes = requests.get(url)
+    response = requests.put(url, json=nova_postagem)
 
     if response.status_code == 200:
-        dados_put = response.json()
-
-        print(f"Titulo: {dados_put['title']}\n")
-        print(f"Conteudo: {dados_put['body']}")
+        if antes.status_code == 200:
+            dados_antes = antes.json()
+            print(f'Titulo Antigo: {dados_antes["title"]}')
+        else:
+            print(f' Erro: {response.status_code}')
+        dados_postagem = response.json()
+        print(f"Titulo: {dados_postagem['title']}")
 
     else:
-        print(f' Erro: {response.status_code}')
-
+        print(f"Erro: {response.status_code}")
 
 # exemplo_get(50)
-exemplo_post()
+# exemplo_post()
+exemplo_put(70)
